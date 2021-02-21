@@ -4,15 +4,17 @@
 #include <Windows.h>
 #include <Psapi.h>
 
-inline auto find_pattern(std::byte* start, const std::size_t length, const char* pattern, const std::string& mask) -> std::byte* //C++20 pattern -> span, check pattern.len == mask.len
+inline auto find_pattern(unsigned char* start, const std::size_t length, const std::initializer_list<unsigned char> pattern, const std::string& mask) -> unsigned char*
 {
+    if (pattern.size() != mask.length())
+        return nullptr;
     size_t position = 0;
     for (auto* i = start; i < start + length - mask.length(); ++i)
     {
-        if (mask[position] == '*' || *reinterpret_cast<char*>(i) == pattern[position])
+        if (mask[position] == '*' || *i == pattern.begin()[position])
         {
             if (++position == mask.length())
-                return ++i - mask.length();
+                return (++i - mask.length());
         }
         else
         {
@@ -22,9 +24,9 @@ inline auto find_pattern(std::byte* start, const std::size_t length, const char*
     return nullptr;
 }
 
-inline auto find_pattern(const HMODULE module, const char* pattern, const std::string& mask) -> std::byte*
+inline auto find_pattern(const HMODULE mod, const std::initializer_list<unsigned char> pattern, const std::string& mask) -> unsigned char*
 {
     MODULEINFO info = { };
-    GetModuleInformation(GetCurrentProcess(), module, &info, sizeof(MODULEINFO));
-    return find_pattern(reinterpret_cast<std::byte*>(module), info.SizeOfImage, pattern, mask);
+    GetModuleInformation(GetCurrentProcess(), mod, &info, sizeof(MODULEINFO));
+    return find_pattern(reinterpret_cast<unsigned char*>(mod), info.SizeOfImage, pattern, mask);
 }
