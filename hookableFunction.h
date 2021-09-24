@@ -34,6 +34,11 @@
     #define CC_REGCALL
     #endif
 #pragma endregion
+/*
+Thanks to Raymond Chen (oldnewthing) for the above macros-to-compiler specific attributes.
+		https://github.com/oldnewthing/
+https://devblogs.microsoft.com/oldnewthing/20200716-00/?p=103986
+*/
 
 #pragma region Dummy Structures
 struct VA_ARGS {};
